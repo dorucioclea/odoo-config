@@ -1,0 +1,24 @@
+{
+  "Servers": {
+      "1": {
+          "Name": "Pgbouncer",
+          "Group": "Servers",
+          "Host": "pgbouncer",
+          "Port": 6432,
+          "MaintenanceDB": "odoo--database",
+          "Username": "odoo",
+          "Password": "odoo-master-password",
+          "Comment": "Pgbouncer server",
+          "UseSSHTunnel": 0,
+          "TunnelPort": "22",
+          "TunnelAuthentication": 0,
+          "KerberosAuthentication": false,
+          "ConnectionParameters": {
+              "sslmode": "prefer",
+              "connect_timeout": 10,
+              "sslcert": "<STORAGE_DIR>/.postgresql/postgresql.crt",
+              "sslkey": "<STORAGE_DIR>/.postgresql/postgresql.key"
+          }
+      }
+  }
+}

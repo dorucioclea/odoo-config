@@ -1,0 +1,10 @@
+[databases]
+* = host=${PRIMARY_HOST} port=${PRIMARY_PORT} dbname=${DATABASE_NAME} user=${DATABASE_USER} password=${DATABASE_PASSWORD}
+
+[pgbouncer]
+listen_addr = *
+listen_port = 6432
+auth_type = md5
+auth_file = /etc/pgbouncer/userlist.txt
+admin_users = odoo
+pool_mode = transaction

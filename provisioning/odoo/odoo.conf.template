@@ -1,0 +1,8 @@
+[options]
+; This is the password that allows database operations:
+admin_passwd = ${ADMIN_PASSWORD}
+db_host = ${DB_HOST}
+db_port = ${DB_PORT}
+db_user = ${DB_USER}
+db_password = ${DB_PASSWORD}
+db_name = ${ODOO_DB}
