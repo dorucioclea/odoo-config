@@ -1,0 +1,83 @@
+version: '3.1'
+services:
+  web:
+    # login with admin:admin
+    build:
+      context: ./provisioning/odoo
+      dockerfile: ./Dockerfile
+    depends_on:
+      - pgbouncer
+    ports:
+      - "8069:8069"
+    environment:
+      HOST: pgbouncer
+      USER: odoo
+      PASSWORD: odoo-password
+      DATABASE: odoo-database
+      ADMIN_PASSWORD: odoo-master-password
+      DB_HOST: pgbouncer
+      DB_PORT: 6432
+      DB_USER: odoo
+      DB_PASSWORD: odoo-password
+      ODOO_DB: odoo-database
+      ODOO_EMAIL: email@odoo.example
+
+  pgbouncer:
+    build:
+      context: ./provisioning/pgbouncer
+      dockerfile: ./Dockerfile
+    depends_on:
+      - db_primary
+      - db_replica
+    ports:
+      - "6432:6432"
+    environment:
+      - PRIMARY_HOST=db_primary
+      - PRIMARY_PORT=5432
+      - DATABASE_NAME=odoo-database
+      - DATABASE_USER=odoo
+      - DATABASE_PASSWORD=odoo-master-password
+    volumes:
+      - ./provisioning/pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt
+
+  db_primary:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: "odoo"
+      POSTGRES_PASSWORD: "odoo-master-password"
+      POSTGRES_DB: "odoo-database"
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+
+    volumes:
+      - primary_data:/var/lib/postgresql/data
+      - ./provisioning/postgres/primary.conf:/etc/postgresql/postgresql.conf
+
+  db_replica:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: "odoo"
+      POSTGRES_PASSWORD: "odoo-master-password"
+      POSTGRES_DB: "odoo-database"
+      REPLICATE_FROM: "db_primary"
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+      POSTGRES_MASTER_HOST: postgres_primary
+      POSTGRES_REPLICA_HOST: postgres_replica
+      POSTGRES_REPLICA_PASSWORD: odoo-master-password
+    volumes:
+      - replica_data:/var/lib/postgresql/data
+      - ./provisioning/postgres/replica.conf:/etc/postgresql/postgresql.conf
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=pgadmin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=pgadmin_password
+    ports:
+      - "6051:80"
+    volumes:
+      - ./provisioning/pgadmin/servers.json:/var/lib/pgadmin/servers.json
+
+volumes:
+  primary_data:
+  replica_data:
